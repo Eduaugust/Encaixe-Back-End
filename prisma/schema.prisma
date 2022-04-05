@@ -24,8 +24,7 @@ model Clients {
   service   String?
   morning   Boolean
   afternoon Boolean
-  start   String
-  end   String
+  day   String
   tuesday   Boolean
   wednesday Boolean
   thursday Boolean
