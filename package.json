@@ -1,7 +1,7 @@
 {
   "name": "encaixe-back",
   "version": "1.0.0",
-  "description": "��#\u0000 \u0000E\u0000n\u0000c\u0000a\u0000i\u0000x\u0000e\u0000-\u0000B\u0000a\u0000c\u0000k\u0000-\u0000E\u0000n\u0000d\u0000\r\u0000 \u0000",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -15,5 +15,14 @@
   "bugs": {
     "url": "https://github.com/Eduaugust/Encaixe-Back-End/issues"
   },
-  "homepage": "https://github.com/Eduaugust/Encaixe-Back-End#readme"
+  "homepage": "https://github.com/Eduaugust/Encaixe-Back-End#readme",
+  "devDependencies": {
+    "@types/node": "^17.0.23",
+    "prisma": "^3.12.0",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.3"
+  },
+  "dependencies": {
+    "@prisma/client": "^3.12.0"
+  }
 }
