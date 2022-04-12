@@ -1,1 +1,1 @@
-web: npm install -g && npx nodemon server/server.ts
+web: ts-node server/server.ts
