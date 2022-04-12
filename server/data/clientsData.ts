@@ -1,6 +1,6 @@
 var prisma = require('../infra/dataBase');
 
-exports.get = async (day: string)=> {
+exports.get = async ()=> {
     const response =  await  prisma.Clients.findMany({})
     await prisma.$disconnect()
     return response
