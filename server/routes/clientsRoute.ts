@@ -4,7 +4,7 @@ const clientsController = require('../controller/clientsController')
 
 routes.get('/', clientsController.get)
 
-routes.get('/byDay', clientsController.getByDay)
+routes.get('/:date', clientsController.getByDay)
 
 routes.post('/', clientsController.post)
 

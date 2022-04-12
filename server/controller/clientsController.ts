@@ -20,7 +20,7 @@ exports.getByDay = async (req: Request, res: Response, next: NextFunction) => {
 }
 
 exports.post = async (req: Request, res: Response, next: NextFunction) => {
-    const response = await clientsService.post(req.body)
+    const response = await clientsService.post(req.params.date)
     if (response.type === 'Success'){
         return res.status(response.status).json(response.data);
     } else{
