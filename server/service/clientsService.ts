@@ -1,5 +1,5 @@
 const clientsData = require('../data/clientsData')
-const { ResponseDTO } = require('../dtos/response')
+var { ResponseDTO } = require('../dtos/response')
 
 exports.get = async () => {
     try {

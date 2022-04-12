@@ -1,4 +1,4 @@
-const prisma = require('../infra/dataBase');
+var prisma = require('../infra/dataBase');
 
 exports.get = async (day: string)=> {
     const response =  await  prisma.Clients.findMany({})

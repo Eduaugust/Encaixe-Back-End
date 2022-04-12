@@ -2,7 +2,7 @@ const express = require('express');
 const server = express();
 const cors = require("cors");
 const indexRoute = require('./routes/indexRoute');
-// const userRoute = require('./routes/userRoute');
+const userRoute = require('./routes/userRoute');
 const clientsRoute = require('./routes/clientsRoute');
 require('dotenv').config()
 
@@ -10,6 +10,8 @@ server.use(cors());
 server.use(express.json());
 
 server.use('/', indexRoute)
+
+server.use('/user', userRoute)
 
 server.use('/clients', clientsRoute)
 
