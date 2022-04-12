@@ -4,9 +4,11 @@ const clientsController = require('../controller/clientsController')
 
 routes.get('/', clientsController.get)
 
+routes.get('/byDay', clientsController.getByDay)
+
 routes.post('/', clientsController.post)
 
-routes.put('/', clientsController.put)
+routes.put('/:id', clientsController.put)
 
 routes.delete('/:id', clientsController.deleteById)
 

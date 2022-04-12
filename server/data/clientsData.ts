@@ -1,32 +1,53 @@
 const prisma = require('../infra/dataBase');
 
 exports.get = async (day: string)=> {
-    const response =  await  prisma.Clients.findMany({
-        where: {
-            day: day,
-          },
-        })
+    const response =  await  prisma.Clients.findMany({})
     await prisma.$disconnect()
     return response
 }
 
-exports.post = async (data: string)=> {
-    const response =  await prisma.Clients.create({
+exports.getByDay = async (day: string)=> {
+  const response =  await  prisma.Clients.findMany({
+      where: {
+          start:{ lte: day },
+          end:{ gte: day },
+        },
+      })
+  await prisma.$disconnect()
+  return response
+}
+
+exports.getById = async (id: number)=> {
+  const response =  await  prisma.Clients.findUnique({
+      where: {id:id}
+    })
+  await prisma.$disconnect()
+  return response
+}
+
+exports.post = async (data: object)=> {
+    const response =  await prisma.Clients.create({data:data})
+    await prisma.$disconnect()
+    return response
+}
+
+exports.put = async (data: object, id: number) => {
+    const response = await prisma.user.update({
+        where: {
+          id: id,
+        },
         data: {
-            data
+         data,
         },
       })
     await prisma.$disconnect()
     return response
 }
 
-exports.put = async (data: string)=> {
-    const response = await prisma.user.update({
+exports.deleteById = async (id: number)=> {
+    const response = await prisma.Clients.delete({
         where: {
-          email: 'viola@prisma.io',
-        },
-        data: {
-          name: 'Viola the Magnificent',
+          id
         },
       })
     await prisma.$disconnect()
@@ -34,23 +55,13 @@ exports.put = async (data: string)=> {
 }
 
 exports.delete = async (day: string)=> {
-    const response = await prisma.Clients.delete({
-        where: {
-          day: day,
-        },
-      })
-    await prisma.$disconnect()
-    return response
-}
-
-exports.deleteById = async (id: string)=> {
-    const response = await prisma.Clients.delete({
-        where: {
-          id: id,
-        },
-      })
-    await prisma.$disconnect()
-    return response
+  const response = await prisma.Clients.delete({
+    where: {
+      end:{ lte: day },
+    },
+    })
+  await prisma.$disconnect()
+  return response
 }
 
 
