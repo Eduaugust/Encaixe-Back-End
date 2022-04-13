@@ -1,6 +1,8 @@
 const clientsData = require('../data/clientsData')
 var { ResponseDTO } = require('../dtos/response')
 
+interface Client {name: string, number: string, serivce: string, start: string, end: string, morning: boolean, afternoon: boolean, tuesday: boolean, wednesday: boolean, thursday: boolean, friday: boolean, saturday: boolean, userId: number}
+
 exports.get = async () => {
     try {
         const response = await clientsData.get()
@@ -12,12 +14,16 @@ exports.get = async () => {
 
 exports.getByDay = async (day: string) => {
     try {
+        // Muda o padraão para yy/mm/dd
         const newDay = day.replaceAll('-', '/')
-        const arrWeekday = ["sunday","moonday","tuesday","wednesday ","thursday","friday","saturday"];
-        const dayweek = arrWeekday[new Date(newDay).getDay()]
-        const response = await clientsData.getByDay(newDay)
-        console.log(response)
-        return new ResponseDTO('Success', 200, '', response)  
+        const weekNumber = new Date(newDay).getDay()
+        if ( weekNumber == 0 || weekNumber == 1 ) {
+            return new ResponseDTO('Error', 400, 'Domingo e Segunda são dias bloqueados. \nEscolha um outro dia.')    
+        }
+        else{
+            const response = await clientsData.getByDay(newDay, weekNumber)
+            return new ResponseDTO('Success', 200, '', response)  
+        }
     } catch (e) {
         return new ResponseDTO('Error', 500, 'Error acessing database', (e as Error).stack)    
     }    
@@ -32,12 +38,14 @@ exports.getById = async (id: number) => {
     }    
 }
 
-exports.post = async (data: {name: string, number: string, serivce: string, start: string, end: string, morning: boolean, afternoon: boolean, moonday: boolean, tuesday: boolean, wednesday: boolean, thursday: boolean, friday: boolean, saturday: boolean, userId: number}) => {
+exports.post = async (data: Client) => {
     try {
         data.start = data.start.replaceAll('-', '/')
         data.end = data.end.replaceAll('-', '/')
 
         const response = await clientsData.post(data)
+
+        
         return new ResponseDTO('Success', 200, '', response)  
     } catch (e) {
         return new ResponseDTO('Error', 500, 'Error acessing database', (e as Error).stack)    
