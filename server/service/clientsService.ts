@@ -10,9 +10,13 @@ exports.get = async () => {
     }    
 }
 
-exports.getByDay = async (day: object) => {
+exports.getByDay = async (day: string) => {
     try {
-        const response = await clientsData.getByDay(day)
+        const newDay = day.replaceAll('-', '/')
+        const arrWeekday = ["sunday","moonday","tuesday","wednesday ","thursday","friday","saturday"];
+        const dayweek = arrWeekday[new Date(newDay).getDay()]
+        const response = await clientsData.getByDay(newDay)
+        console.log(response)
         return new ResponseDTO('Success', 200, '', response)  
     } catch (e) {
         return new ResponseDTO('Error', 500, 'Error acessing database', (e as Error).stack)    
@@ -28,8 +32,11 @@ exports.getById = async (id: number) => {
     }    
 }
 
-exports.post = async (data: object) => {
+exports.post = async (data: {name: string, number: string, serivce: string, start: string, end: string, morning: boolean, afternoon: boolean, moonday: boolean, tuesday: boolean, wednesday: boolean, thursday: boolean, friday: boolean, saturday: boolean, userId: number}) => {
     try {
+        data.start = data.start.replaceAll('-', '/')
+        data.end = data.end.replaceAll('-', '/')
+
         const response = await clientsData.post(data)
         return new ResponseDTO('Success', 200, '', response)  
     } catch (e) {

@@ -11,7 +11,7 @@ exports.get = async (req: Request, res: Response, next: NextFunction) => {
 }
 
 exports.getByDay = async (req: Request, res: Response, next: NextFunction) => {
-    const response = await clientsService.getByDay(req.body.day)
+    const response = await clientsService.getByDay(req.params.date)
     if (response.type === 'Success'){
         return res.status(response.status).json(response.data);
     } else{
@@ -20,7 +20,7 @@ exports.getByDay = async (req: Request, res: Response, next: NextFunction) => {
 }
 
 exports.post = async (req: Request, res: Response, next: NextFunction) => {
-    const response = await clientsService.post(req.params.date)
+    const response = await clientsService.post(req.body)
     if (response.type === 'Success'){
         return res.status(response.status).json(response.data);
     } else{
