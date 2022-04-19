@@ -54,7 +54,6 @@ exports.post = async (data: Client) => {
 
 exports.put = async (id: string, data: string) => {
     try {
-        parseInt(id, 10)
         const verify = await exports.getById(id)
         if (verify.type == 'Error') {
             return verify
