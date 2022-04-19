@@ -38,7 +38,9 @@ exports.getByDay = async (day: string, dayWeek: number) => {
 
 exports.getById = async (id: number)=> {
   const response =  await  prisma.Clients.findUnique({
-      where: {id:id}
+    where: {
+      id
+    },
     })
   await prisma.$disconnect()
   return response
@@ -51,14 +53,8 @@ exports.post = async (data: object)=> {
 }
 
 exports.put = async (data: object, id: number) => {
-    const response = await prisma.user.update({
-        where: {
-          id: id,
-        },
-        data: {
-         data,
-        },
-      })
+    const response = await prisma.Clients.update({where: {id:id},data:data})
+    console.log(response)
     await prisma.$disconnect()
     return response
 }

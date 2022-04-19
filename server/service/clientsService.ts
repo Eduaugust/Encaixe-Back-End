@@ -52,15 +52,16 @@ exports.post = async (data: Client) => {
     }    
 }
 
-exports.put = async (id: number, data: string) => {
+exports.put = async (id: string, data: string) => {
     try {
+        parseInt(id, 10)
         const verify = await exports.getById(id)
         if (verify.type == 'Error') {
             return verify
         } else if(verify.data == null) {
             return new ResponseDTO('Error', 500, 'Id do usuário inválido', null)    
         }
-        const response = await clientsData.put(data)
+        const response = await clientsData.put(data, id)
         return new ResponseDTO('Success', 200, '', response)  
     } catch (e) {
         return new ResponseDTO('Error', 500, 'Error acessing database', (e as Error).stack)    

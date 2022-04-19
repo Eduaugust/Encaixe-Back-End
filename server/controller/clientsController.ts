@@ -29,7 +29,8 @@ exports.post = async (req: Request, res: Response, next: NextFunction) => {
 }
 
 exports.put = async (req: Request, res: Response, next: NextFunction) => {
-    const response = await clientsService.put(req.params.id, req.body)
+    const id = parseInt(req.params?.id)
+    const response = await clientsService.put(id, req.body)
     if (response.type === 'Success'){
         return res.status(response.status).json(response.data);
     } else{
