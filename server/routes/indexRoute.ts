@@ -4,4 +4,4 @@ const router = express.Router();
 router.get('/', (req: Request, res: Response) => {
     res.send("Success");})
 
-module.exports = router;
+export { router as indexRoute };

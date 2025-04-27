@@ -1,7 +1,12 @@
 import express from "express";
 const routes = express.Router();
-const userController = require('../controller/userController')
+import * as userController from "../controller/userController";
+import * as authMiddleware from "../middlewares/auth";
 
-routes.post('/', userController.post)
+// Rota pública de login
+routes.post('/login', userController.login)
 
-module.exports = routes;
+// Rota protegida que requer autenticação e privilégios de admin
+routes.post('/', authMiddleware.format, authMiddleware.user_admin, userController.post)
+
+export { routes as userRoute };
