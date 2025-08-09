@@ -46,14 +46,14 @@ export const login = async (email: string, password: string) => {
         const user = await userData.getByEmail(email);
         
         if (!user) {
-            return new ResponseDTO('Error', 401, 'Email não encontrado', null);
+            return new ResponseDTO('Error', 401, 'Usuário ou senha não encontrados', null);
         }
         
         // Verificar senha
         const validPassword = await bcrypt.compare(password, user.password || '');
         
         if (!validPassword) {
-            return new ResponseDTO('Error', 401, 'Senha inválida', null);
+            return new ResponseDTO('Error', 401, 'Usuário ou senha não encontrados', null);
         }
         
         // Gerar token JWT
