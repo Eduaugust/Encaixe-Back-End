@@ -10,28 +10,84 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id      Int      @id @default(autoincrement())
-  email   String   @unique
-  password    String?
-  type  String?    
-  clients Clients[]
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  MEMBER
 }
 
-model Clients {
-  id        Int      @id @default(autoincrement())
-  name    String?
-  number   String
-  service   String?
+model Company {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  users       User[]
+  services    Service[]
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  name      String
+  password  String
+  role      UserRole  @default(MEMBER)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  
+  // Relations
+  company     Company    @relation(fields: [companyId], references: [id])
+  companyId   Int
+  clients     Client[]
+}
+
+model Client {
+  id          Int       @id @default(autoincrement())
+  name        String
+  email       String?
+  phoneNumber String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  user          User            @relation(fields: [userId], references: [id])
+  userId        Int
+  desireServices DesireService[]
+}
+
+model DesireService {
+  id        Int       @id @default(autoincrement())
   morning   Boolean
   afternoon Boolean
-  start   String
-  end   String
+  start     String
+  end       String
+  sunday    Boolean
+  monday    Boolean
   tuesday   Boolean
   wednesday Boolean
-  thursday Boolean
-  friday Boolean
-  saturday Boolean
-  user    User     @relation(fields: [userId], references: [id])
-  userId Int       
+  thursday  Boolean
+  friday    Boolean
+  saturday  Boolean
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  
+  // Relations
+  client     Client    @relation(fields: [clientId], references: [id])
+  clientId   Int
+  service    Service   @relation(fields: [serviceId], references: [id])
+  serviceId  Int
+}
+
+model Service {
+  id             Int       @id @default(autoincrement())
+  title          String
+  description    String?
+  averageTime    Int       // in minutes
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  
+  // Relations
+  company         Company          @relation(fields: [companyId], references: [id])
+  companyId       Int
+  desireServices  DesireService[]
 }

@@ -1,10 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { ResponseDTO } from '../dtos/response';
+import { UserRole } from '../types/user';
 
 interface DecodedToken {
     id: number;
-    user_type: string;
+    user_role: UserRole;
+    companyId: number;
 }
 
 export const format = (req: Request, res: Response, next: NextFunction) => { 
@@ -38,7 +40,8 @@ export const format = (req: Request, res: Response, next: NextFunction) => {
         const decodedToken = decoded as DecodedToken;
         req.body.decodedUser = {
             "id": decodedToken.id,
-            "type": decodedToken.user_type
+            "role": decodedToken.user_role,
+            "companyId": decodedToken.companyId
         };
         
         return next();
@@ -47,8 +50,17 @@ export const format = (req: Request, res: Response, next: NextFunction) => {
 
 export const user_admin = (req: Request, res: Response, next: NextFunction) => {
     const user = req.body.decodedUser;
-    if (!user || user.type !== "admin"){
+    if (!user || (user.role !== UserRole.ADMIN && user.role !== UserRole.SUPER_ADMIN)){
         const response = new ResponseDTO('Error',401,'Not authorized');
+        return res.status(response.status).json(response);
+    }
+    next();
+}
+
+export const super_admin = (req: Request, res: Response, next: NextFunction) => {
+    const user = req.body.decodedUser;
+    if (!user || user.role !== UserRole.SUPER_ADMIN){
+        const response = new ResponseDTO('Error',401,'Only Super Admin can access this resource');
         return res.status(response.status).json(response);
     }
     next();

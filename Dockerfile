@@ -1,19 +1,41 @@
-FROM node:20.10.0
+FROM node:20-alpine
 
-# Define the working directory
+# Install necessary packages
+RUN apk add --no-cache dumb-init
+
+# Create app directory
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nodejs -u 1001
+
+# Copy package files
+COPY package.json yarn.lock ./
 
 # Install dependencies
-RUN yarn install
+RUN yarn install --frozen-lockfile --production
+RUN yarn cache clean
 
-# Copy the rest of the application code
+# Copy source code
 COPY . .
 
-# Expose the port the app runs on
+# Generate Prisma client
+RUN npx prisma generate
+
+# Change ownership to nodejs user
+RUN chown -R nodejs:nodejs /usr/src/app
+USER nodejs
+
+# Expose port
 EXPOSE 8080
 
-# Command to run the application
-CMD ["yarn", "start"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node healthcheck.js
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
+
+# Start the application
+CMD ["yarn", "start:prod"]

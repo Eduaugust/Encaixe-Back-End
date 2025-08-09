@@ -1,8 +1,9 @@
 import * as clientsService from '../service/clientsService';
-import {Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { ClientCreateData, ClientUpdateData } from '../types/client';
+import { UserRole } from '../types/user';
 
-export const get = async (req: Request, res: Response, next: NextFunction) => {
+export const getAll = async (req: Request, res: Response, next: NextFunction) => {
     // Verificação de segurança para garantir que req.body.decodedUser existe
     if (!req.body.decodedUser) {
         return res.status(401).json({
@@ -11,17 +12,22 @@ export const get = async (req: Request, res: Response, next: NextFunction) => {
             message: 'Usuário não autenticado'
         });
     }
+
+     const { userId, userRole, userCompanyId  } = {
+        userId: req.body.decodedUser.id,
+        userRole: req.body.decodedUser.role,
+        userCompanyId: req.body.decodedUser.companyId
+    };
     
-    const response = await clientsService.get(req.body.decodedUser.id, req.body.decodedUser.type);
+    const response = await clientsService.getAll(userId, userRole, userCompanyId);
     if (response.type === 'Success'){
-        return res.status(response.status).json(response.data);
+        return res.status(response.status).json(response);
     } else{
         return res.status(response.status).json(response);
     }
 }
 
-export const getByDay = async (req: Request, res: Response, next: NextFunction) => {
-    // Verificação de segurança para garantir que req.body.decodedUser existe
+export const getById = async (req: Request, res: Response, next: NextFunction) => {
     if (!req.body.decodedUser) {
         return res.status(401).json({
             type: 'Error',
@@ -29,20 +35,23 @@ export const getByDay = async (req: Request, res: Response, next: NextFunction) 
             message: 'Usuário não autenticado'
         });
     }
+     const { userId, userRole, userCompanyId  } = {
+        userId: req.body.decodedUser.id,
+        userRole: req.body.decodedUser.role,
+        userCompanyId: req.body.decodedUser.companyId
+    };
     
-    const date = req.params.date;
-    const dayWeek = new Date(date).getDay() + 1;
+    const id = parseInt(req.params.id);
     
-    const response = await clientsService.getByDay(date, dayWeek, req.body.decodedUser.id, req.body.decodedUser.type);
+    const response = await clientsService.getById(id, userId, userRole, userCompanyId);
     if (response.type === 'Success'){
-        return res.status(response.status).json(response.data);
+        return res.status(response.status).json(response);
     } else{
         return res.status(response.status).json(response);
     }
 }
 
-export const post = async (req: Request, res: Response, next: NextFunction) => {
-    // Verificação de segurança para garantir que req.body.decodedUser existe
+export const getByUserId = async (req: Request, res: Response, next: NextFunction) => {
     if (!req.body.decodedUser) {
         return res.status(401).json({
             type: 'Error',
@@ -51,35 +60,50 @@ export const post = async (req: Request, res: Response, next: NextFunction) => {
         });
     }
     
-    const { name, morning, afternoon, number, service, start, end, tuesday, wednesday, thursday, friday, saturday } = req.body;
-    const { id: userId } = req.body.decodedUser;
+    const userId = parseInt(req.params.userId);
+    
+    const response = await clientsService.getByUserId(userId);
+    if (response.type === 'Success'){
+        return res.status(response.status).json(response);
+    } else{
+        return res.status(response.status).json(response);
+    }
+}
+
+export const create = async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.body.decodedUser) {
+        return res.status(401).json({
+            type: 'Error',
+            status: 401,
+            message: 'Usuário não autenticado'
+        });
+    }
+
+     const { userId, userRole, userCompanyId  } = {
+        userId: req.body.decodedUser.id,
+        userRole: req.body.decodedUser.role,
+        userCompanyId: req.body.decodedUser.companyId
+    };
+    
+    const { name, email, phoneNumber } = req.body;
     
     const clientData: ClientCreateData = {
         name,
-        morning,
-        afternoon,
-        number,
-        service,
-        start,
-        end,
-        tuesday,
-        wednesday,
-        thursday,
-        friday,
-        saturday,
+        email,
+        phoneNumber,
         userId
     };
     
-    const response = await clientsService.post(clientData);
+    
+    const response = await clientsService.create(clientData, userRole, userCompanyId);
     if (response.type === 'Success'){
-        return res.status(response.status).json(response.data);
+        return res.status(response.status).json(response);
     } else{
         return res.status(response.status).json(response);
     }
 }
 
-export const put = async (req: Request, res: Response, next: NextFunction) => {
-    // Verificação de segurança para garantir que req.body.decodedUser existe
+export const update = async (req: Request, res: Response, next: NextFunction) => {
     if (!req.body.decodedUser) {
         return res.status(401).json({
             type: 'Error',
@@ -89,32 +113,31 @@ export const put = async (req: Request, res: Response, next: NextFunction) => {
     }
     
     const id = parseInt(req.params.id);
-    const { id: userId, type } = req.body.decodedUser;
+
+    const { userId, userRole, userCompanyId  } = {
+        userId: req.body.decodedUser.id,
+        userRole: req.body.decodedUser.role,
+        userCompanyId: req.body.decodedUser.companyId
+    };
+
     const updateData: ClientUpdateData = {
         name: req.body.name,
-        number: req.body.number,
-        service: req.body.service,
-        morning: req.body.morning,
-        afternoon: req.body.afternoon,
-        tuesday: req.body.tuesday,
-        wednesday: req.body.wednesday,
-        thursday: req.body.thursday,
-        friday: req.body.friday,
-        saturday: req.body.saturday,
-        start: req.body.start,
-        end: req.body.end
+        email: req.body.email,
+        phoneNumber: req.body.phoneNumber,
+        userId: req.body.userId
     };
+
     
-    const response = await clientsService.put(id, updateData, userId, type);
+    
+    const response = await clientsService.update(id, updateData, userId, userRole, userCompanyId);
     if (response.type === 'Success'){
-        return res.status(response.status).json(response.data);
+        return res.status(response.status).json(response);
     } else{
         return res.status(response.status).json(response);
     }
 }
 
-export const deleteById = async (req: Request, res: Response, next: NextFunction) => {
-    // Verificação de segurança para garantir que req.body.decodedUser existe
+export const remove = async (req: Request, res: Response, next: NextFunction) => {
     if (!req.body.decodedUser) {
         return res.status(401).json({
             type: 'Error',
@@ -124,18 +147,21 @@ export const deleteById = async (req: Request, res: Response, next: NextFunction
     }
     
     const id = parseInt(req.params.id);
-    const { id: userId, type } = req.body.decodedUser;
+    const { userId, userRole, userCompanyId  } = {
+        userId: req.body.decodedUser.id,
+        userRole: req.body.decodedUser.role,
+        userCompanyId: req.body.decodedUser.companyId
+    };
     
-    const response = await clientsService.deleteById(id, userId, type);
+    const response = await clientsService.remove(id, userId, userRole,userCompanyId);
     if (response.type === 'Success'){
-        return res.status(response.status).json(response.data);
+        return res.status(response.status).json(response);
     } else{
         return res.status(response.status).json(response);
     }
 }
 
-export const deleteClient = async (req: Request, res: Response, next: NextFunction) => {
-    // Verificação de segurança para garantir que req.body.decodedUser existe
+export const removeAll = async (req: Request, res: Response, next: NextFunction) => {
     if (!req.body.decodedUser) {
         return res.status(401).json({
             type: 'Error',
@@ -143,10 +169,12 @@ export const deleteClient = async (req: Request, res: Response, next: NextFuncti
             message: 'Usuário não autenticado'
         });
     }
+
+    const userRole = req.body.decodedUser.role;
     
-    const response = await clientsService.deleteClient(req.query.day as string);
+    const response = await clientsService.removeAll(userRole);
     if (response.type === 'Success'){
-        return res.status(response.status).json(response.data);
+        return res.status(response.status).json(response);
     } else{
         return res.status(response.status).json(response);
     }

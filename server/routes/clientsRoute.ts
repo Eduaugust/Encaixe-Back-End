@@ -6,16 +6,25 @@ import * as authMiddleware from "../middlewares/auth";
 // Aplicando middleware de autenticação em todas as rotas de clients
 routes.use(authMiddleware.format);
 
-routes.get('/', clientsController.get)
+// Listar todos os clientes
+routes.get('/', clientsController.getAll);
 
-routes.get('/:date', clientsController.getByDay)
+// Buscar cliente por ID
+routes.get('/:id', clientsController.getById);
 
-routes.post('/', clientsController.post)
+// Buscar clientes por usuário
+routes.get('/user/:userId', clientsController.getByUserId);
 
-routes.put('/:id', clientsController.put)
+// Criar novo cliente
+routes.post('/', clientsController.create);
 
-routes.delete('/:id', clientsController.deleteById)
+// Atualizar cliente
+routes.put('/:id', clientsController.update);
 
-routes.delete('/', authMiddleware.user_admin, clientsController.deleteClient) // Apenas admin pode excluir todos
+// Remover cliente específico
+routes.delete('/:id', clientsController.remove);
+
+// Remover todos os clientes (apenas admin)
+routes.delete('/', authMiddleware.user_admin, clientsController.removeAll);
 
 export { routes as clientsRoute };
