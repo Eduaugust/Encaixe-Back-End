@@ -268,7 +268,7 @@ export const remove = async (req: Request, res: Response, next: NextFunction) =>
 export const createCompany = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { name, description } = req.body;
-        
+
         if (!name) {
             return res.status(400).json({
                 type: 'Error',
@@ -276,14 +276,14 @@ export const createCompany = async (req: Request, res: Response, next: NextFunct
                 message: 'Nome da empresa é obrigatório'
             });
         }
-        
+
         const company = await prisma.company.create({
             data: {
                 name,
                 description
             }
         });
-        
+
         return res.status(201).json({
             type: 'Success',
             status: 201,
@@ -299,3 +299,6 @@ export const createCompany = async (req: Request, res: Response, next: NextFunct
         });
     }
 }
+
+// Alias para a rota pública de registro
+export const register = registerUser;

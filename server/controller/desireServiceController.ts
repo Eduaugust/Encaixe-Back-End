@@ -250,13 +250,83 @@ export const remove = async (req: Request, res: Response) => {
         userRole: req.body.decodedUser.role,
         userCompanyId: req.body.decodedUser.companyId
     };
-    
+
     const response = await desireServiceService.remove(parseInt(id), userId, userRole, userCompanyId);
-    
+
     if (response.type === 'Success') {
       return res.status(200).json({
         success: true,
         message: response.message || 'Desire service deleted successfully'
+      });
+    } else {
+      return res.status(response.status).json({
+        success: false,
+        message: response.message
+      });
+    }
+  } catch (error: any) {
+    return res.status(400).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+export const removeMultiple = async (req: Request, res: Response) => {
+  try {
+    const { ids } = req.body;
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'IDs array is required and must not be empty'
+      });
+    }
+
+    // Extrair userId e userRole do token decodificado
+    const { userId, userRole, userCompanyId } = {
+      userId: req.body.decodedUser.id,
+      userRole: req.body.decodedUser.role,
+      userCompanyId: req.body.decodedUser.companyId
+    };
+
+    const response = await desireServiceService.removeMultiple(ids.map(id => parseInt(id)), userId, userRole, userCompanyId);
+
+    if (response.type === 'Success') {
+      return res.status(200).json({
+        success: true,
+        message: response.message || `${ids.length} desire service(s) deleted successfully`,
+        data: response.data
+      });
+    } else {
+      return res.status(response.status).json({
+        success: false,
+        message: response.message
+      });
+    }
+  } catch (error: any) {
+    return res.status(400).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+export const removeExpired = async (req: Request, res: Response) => {
+  try {
+    const { userId, userRole, userCompanyId } = {
+      userId: req.body.decodedUser.id,
+      userRole: req.body.decodedUser.role,
+      userCompanyId: req.body.decodedUser.companyId
+    };
+
+    const response = await desireServiceService.removeExpired(userId, userRole, userCompanyId);
+
+    if (response.type === 'Success') {
+      return res.status(200).json({
+        success: true,
+        message: response.message,
+        data: response.data
       });
     } else {
       return res.status(response.status).json({

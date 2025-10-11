@@ -234,14 +234,15 @@ export const remove = async (id: number, userId: number, userRole: UserRole, use
         const client = await prisma.client.findUnique({
             where: { id },
             include: {
-                user: true
+                user: true,
+                desireServices: true
             }
         });
-        
+
         if (!client) {
             return new ResponseDTO('Error', 404, 'Cliente não encontrado', null);
         }
-        
+
         // Verificar permissões
         if (userRole === UserRole.SUPER_ADMIN) {
             // Super Admin pode excluir qualquer cliente
@@ -256,11 +257,16 @@ export const remove = async (id: number, userId: number, userRole: UserRole, use
                 return new ResponseDTO('Error', 403, 'Sem permissão para excluir este cliente', null);
             }
         }
-        
+
+        // Verificar se o cliente possui encaixes ativos
+        if (client.desireServices && client.desireServices.length > 0) {
+            return new ResponseDTO('Error', 400, 'Não é possível excluir este cliente pois ele possui encaixes ativos. Remova os encaixes primeiro.', null);
+        }
+
         const deletedClient = await prisma.client.delete({
             where: { id }
         });
-        
+
         return new ResponseDTO('Success', 200, 'Cliente excluído com sucesso', deletedClient);
     } catch (e) {
         return new ResponseDTO('Error', 500, 'Erro ao acessar banco de dados', (e as Error).stack);

@@ -27,6 +27,12 @@ routes.post('/', desireServiceController.create);
 // Atualizar desejo de serviço
 routes.put('/:id', desireServiceController.update);
 
+// Remover múltiplos desejos de serviço
+routes.post('/delete-multiple', desireServiceController.removeMultiple);
+
+// Remover todos os desejos de serviço vencidos
+routes.post('/delete-expired', desireServiceController.removeExpired);
+
 // Remover desejo de serviço
 routes.delete('/:id', desireServiceController.remove);
 

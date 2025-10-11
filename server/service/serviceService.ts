@@ -166,9 +166,9 @@ export const remove = async (id: number, userRole: UserRole, userCompanyId: numb
       return new ResponseDTO('Error', 403, 'Você não tem permissão para remover serviços', null);
     }
     
-    // Verificar se há desejos de serviço associados
+    // Verificar se há encaixes associados a este serviço
     if (existingService.desireServices && existingService.desireServices.length > 0) {
-      return new ResponseDTO('Error', 400, 'Não é possível excluir um serviço que possui desejos associados', null);
+      return new ResponseDTO('Error', 400, 'Não é possível excluir este serviço pois ele possui encaixes ativos. Remova os encaixes primeiro.', null);
     }
     
     // Remover serviço

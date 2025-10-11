@@ -275,15 +275,15 @@ export const remove = async (id: number, userId: number, userRole: UserRole, use
     if (!existingDesireService) {
       return new ResponseDTO('Error', 404, 'Desejo de serviço não encontrado', null);
     }
-    
+
     // Buscar cliente e serviço para verificar permissões
     const client = await clientData.getById(existingDesireService.clientId);
     const service = await serviceData.getById(existingDesireService.serviceId);
-    
+
     if (!client || !service) {
       return new ResponseDTO('Error', 404, 'Dados relacionados não encontrados', null);
     }
-    
+
     // Verificar permissões por papel de usuário
     if (userRole === UserRole.SUPER_ADMIN) {
       // Super Admin pode remover qualquer desejo
@@ -299,12 +299,109 @@ export const remove = async (id: number, userId: number, userRole: UserRole, use
         return new ResponseDTO('Error', 403, 'Você não tem permissão para remover este desejo de serviço', null);
       }
     }
-    
+
     // Remover desejo de serviço
     const removedDesireService = await desireServiceData.remove(id);
     return new ResponseDTO('Success', 200, 'Desejo de serviço removido com sucesso', removedDesireService);
   } catch (error) {
     return new ResponseDTO('Error', 500, 'Erro ao remover desejo de serviço', (error as Error).message);
+  }
+};
+
+export const removeMultiple = async (ids: number[], userId: number, userRole: UserRole, userCompanyId: number) => {
+  try {
+    const removedIds: number[] = [];
+    const errors: string[] = [];
+
+    for (const id of ids) {
+      // Verificar se o desejo de serviço existe
+      const existingDesireService = await desireServiceData.getById(id);
+      if (!existingDesireService) {
+        errors.push(`Desejo de serviço ${id} não encontrado`);
+        continue;
+      }
+
+      // Buscar cliente e serviço para verificar permissões
+      const client = await clientData.getById(existingDesireService.clientId);
+      const service = await serviceData.getById(existingDesireService.serviceId);
+
+      if (!client || !service) {
+        errors.push(`Dados relacionados do desejo ${id} não encontrados`);
+        continue;
+      }
+
+      // Verificar permissões por papel de usuário
+      let hasPermission = false;
+      if (userRole === UserRole.SUPER_ADMIN) {
+        hasPermission = true;
+      } else if (userRole === UserRole.ADMIN) {
+        const clientUser = await clientData.getUserById(client.userId);
+        hasPermission = !!(clientUser && clientUser.companyId === userCompanyId && service.companyId === userCompanyId);
+      } else {
+        hasPermission = client.userId === userId;
+      }
+
+      if (!hasPermission) {
+        errors.push(`Sem permissão para remover o desejo ${id}`);
+        continue;
+      }
+
+      // Remover desejo de serviço
+      await desireServiceData.remove(id);
+      removedIds.push(id);
+    }
+
+    if (removedIds.length === 0) {
+      return new ResponseDTO('Error', 400, 'Nenhum desejo de serviço foi removido', { errors });
+    }
+
+    const message = removedIds.length === ids.length
+      ? `${removedIds.length} desejo(s) de serviço removido(s) com sucesso`
+      : `${removedIds.length} de ${ids.length} desejo(s) removido(s). Alguns falharam.`;
+
+    return new ResponseDTO('Success', 200, message, { removedIds, errors });
+  } catch (error) {
+    return new ResponseDTO('Error', 500, 'Erro ao remover desejos de serviço', (error as Error).message);
+  }
+};
+
+export const removeExpired = async (userId: number, userRole: UserRole, userCompanyId: number) => {
+  try {
+    // Buscar todos os desejos de serviço do usuário
+    let allDesireServices;
+
+    if (userRole === UserRole.SUPER_ADMIN) {
+      allDesireServices = await desireServiceData.getAll();
+    } else if (userRole === UserRole.ADMIN) {
+      allDesireServices = await desireServiceData.getAllByCompanyId(userCompanyId);
+    } else {
+      allDesireServices = await desireServiceData.getAllByUserId(userId);
+    }
+
+    // Filtrar apenas os vencidos
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const expiredDesireServices = allDesireServices.filter(ds => {
+      const endDate = new Date(ds.end);
+      endDate.setHours(0, 0, 0, 0);
+      return endDate < today;
+    });
+
+    if (expiredDesireServices.length === 0) {
+      return new ResponseDTO('Success', 200, 'Nenhum encaixe atrasado encontrado', { removedIds: [] });
+    }
+
+    // Remover todos os vencidos
+    const removedIds: number[] = [];
+    for (const ds of expiredDesireServices) {
+      await desireServiceData.remove(ds.id);
+      removedIds.push(ds.id);
+    }
+
+    return new ResponseDTO('Success', 200, `${removedIds.length} encaixe(s) atrasado(s) removido(s) com sucesso`, { removedIds });
+  } catch (error) {
+    return new ResponseDTO('Error', 500, 'Erro ao remover encaixes atrasados', (error as Error).message);
   }
 };
 

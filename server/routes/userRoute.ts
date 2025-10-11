@@ -6,9 +6,6 @@ import * as authMiddleware from "../middlewares/auth";
 // Rota pública de login
 routes.post('/login', userController.login);
 
-// Rota pública de registro (para o primeiro usuário ADMIN)
-// routes.post('/register', userController.register);
-
 // Middleware de autenticação para as rotas a seguir
 routes.use(authMiddleware.format);
 
